@@ -1,0 +1,24 @@
+{
+  "name": "zhihu-back-tool",
+  "version": "0.1.0",
+  "description": "纸糊备份关注收藏,并迁移到小号",
+  "main": "index.js",
+  "repository": "git@github.com:zaaack/zhihu-back-tool.git",
+  "author": "zaaack <zaaack@qq.com>",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "axios": "^0.21.1",
+    "chrome-finder": "^1.0.7",
+    "foy": "^0.2.3",
+    "keyv-file": "^0.2.0",
+    "playwright": "^1.9.2",
+    "puppeteer": "5",
+    "puppeteer-core": "^8.0.0",
+    "puppeteer-extra": "^3.1.18",
+    "puppeteer-extra-plugin-stealth": "^2.7.6",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
+  },
+  "devDependencies": {}
+}
