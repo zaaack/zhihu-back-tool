@@ -18,10 +18,11 @@ export interface Follower {
 class Kv extends KeyvFile {
   collections = makeField(this, 'collections', [] as Collection[])
   followers = makeField(this, 'followers', [] as Follower[])
-  constructor() {
+  constructor(name = '') {
     super({
-      filename: `${tempDir}/data.json`,
+      filename: `${tempDir}/data${name}.json`,
     })
   }
 }
 export const kv = new Kv
+export const newKv = new Kv('-new')

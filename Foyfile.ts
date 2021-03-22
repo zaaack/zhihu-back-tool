@@ -8,7 +8,7 @@ puppeteer.use(StealthPlugin())
 
 import * as playwright from 'playwright'
 import { oldDataDir as oldDataDir,tempDir, newDataDir } from './src/consts'
-import { kv, Collection, Link, Follower } from './src/kv'
+import { kv, newKv, Collection, Link, Follower } from './src/kv'
 import { chunkBy } from './src/utils'
 const findChrome = require('chrome-finder')
 const logFile = `${tempDir}/data.log`
@@ -153,7 +153,7 @@ task('backup', async ctx => {
 })
 const myBigBuggyCol = 'wtf'
 
-async function sync({browser, page, profilerUrl}: Context) {
+async function restoreCols({browser, page, profilerUrl}: Context) {
   let cols = kv.collections.get()
   console.log('cols', cols.map(c=> [c.name, c.links.length]))
   await page.goto(`${profilerUrl}/collections`)
@@ -217,7 +217,39 @@ async function sync({browser, page, profilerUrl}: Context) {
   }
 }
 
+async function restoreFollowers(ctx: Context) {
+  logger.info('restoreFollowers start')
+  let followers = kv.followers.get()
+  let group = chunkBy(followers, 60)
+  await Promise.all(group.map(async g => {
+    const page = await ctx.browser.newPage()
+    for (const f of g) {
+      await page.goto(f.link, {
+        waitUntil: 'networkidle0'
+      })
+      let btn = await page.$('.FollowButton.Button--blue')
+      if (btn) {
+        await btn.click()
+        try {
+          await page.waitForSelector('.FollowButton.Button--grey', {
+            timeout: 2000
+          })
+          logger.info('follow', f.name)
+        } catch (error) {
+          logger.error('follow failed',f.name, f.link, error)
+          throw error
+        }
+      } else {
+        logger.info('skip follow', f.name)
+      }
+    }
+    await page.close()
+  }))
+  logger.info('restoreFollowers end')
+}
+
 task('sync', async ctx => {
   let pctx = await login(newDataDir)
-  await sync(pctx).catch(logger.error)
+  // await restoreCols(pctx).catch(logger.error)
+  await restoreFollowers(pctx).catch(logger.error)
 })
